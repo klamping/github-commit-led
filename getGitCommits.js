@@ -1,4 +1,5 @@
 var https = require('https');
+var fs = require('fs');
 
 var options = {
     host: 'github.com',
@@ -10,8 +11,25 @@ var request = https.request(options, function (res) {
         data += chunk;
     });
     res.on('end', function () {
-        console.log(data);
+        // convert to array so we modify it
+        var history = JSON.parse(data);
 
+        // reverse the array so that most recent commits are first
+        history.reverse();
+
+        // get only number of commits per day
+        var numCommits = history.map(function (dayInfo) {
+          return dayInfo[1];
+        })
+
+        // write commit data to file for later consumption
+        fs.writeFile("/tmp/test", numCommits.toString(), function(err) {
+            if(err) {
+                console.log(err);
+            } else {
+                console.log("The file was saved!");
+            }
+        });
     });
 });
 request.on('error', function (e) {
