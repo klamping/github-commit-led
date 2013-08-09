@@ -1,6 +1,11 @@
 var https = require('https');
 var fs = require('fs');
 
+var SerialPort = require("serialport").SerialPort
+var serialPort = new SerialPort("/dev/ttyACM0", {
+  baudrate: 9600
+});
+
 var options = {
     host: 'github.com',
     path: '/users/klamping/contributions_calendar_data'
@@ -23,12 +28,20 @@ var request = https.request(options, function (res) {
         })
 
         // write commit data to file for later consumption
-        fs.writeFile("./commitData", numCommits.join(','), function(err) {
-            if(err) {
-                console.log(err);
-            } else {
-                console.log("The file was saved!");
-            }
+        // fs.writeFile("./commitData", numCommits.join(','), function(err) {
+        //     if(err) {
+        //         console.log(err);
+        //     } else {
+        //         console.log("The file was saved!");
+        //     }
+        // });
+
+        serialPort.on("open", function () {
+          console.log('open');
+          serialPort.write(numCommits.join(','), function(err, results) {
+            console.log('err ' + err);
+            console.log('results ' + results);
+          });
         });
     });
 });
