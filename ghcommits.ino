@@ -8,7 +8,7 @@ const int colors[3] = { LED_GREEN, LED_YELLOW, LED_RED };
 
 int count = 0;
 
-int commits[] = { 0,0,0,8,10,3,0,0,1,2,2,6,1,0,0,2,1,1,4,5,0,13,4,0,0,2,3,0,8,3,7,3,6,7,2,1,9,4,1,0,0,0,0,0,0,0,2,4,0,0,0,0,0,0,0,0 };
+char commits[56];
 
 boolean hasNewData = false;
 
@@ -23,10 +23,15 @@ void setup() {
   
   matrix.setBrightness(5);
   
-  matrix.setRotation(3);
+  matrix.setRotation(1);
+  
+  matrix.clear();
+
+  matrix.writeDisplay();
 }
 
 void showHistory() {
+  Serial.write("new");
   int count = 0;
   int numCommits = 0;
   
@@ -34,6 +39,8 @@ void showHistory() {
     
   for(int x = 0; x < 8; x++) {
     for(int y = 0; y < 7; y++) {
+      Serial.print(commits[count]);
+
       if(commits[count] > 0) {
         if(commits[count] > 6) {
           numCommits = 0;
@@ -55,36 +62,19 @@ void showHistory() {
   hasNewData = false;
 
   matrix.writeDisplay();
+  Serial.write("end");
 }
 
-String content = "";
 int i = 0;
+String inData;
 
 void loop() {
   if (Serial.available() > 0) {
-      digitalWrite(ledPin, HIGH);
-      delay(5);
-      digitalWrite(ledPin, LOW);
-      delay(5);
-
-    int tempCommit = 0;
-    while(Serial.available()) {
-      
+    while(Serial.available() > 0) {
       char incoming = Serial.read();
-      if (incoming != ',') {
-        tempCommit = (tempCommit * 10) + incoming;
-        if (tempCommit > 0) {
-          tempCommit = 10;
-        }
-        else { 
-          tempCommit = int(incoming);
-        }
-      } else {
-        commits[i] = tempCommit;
-        Serial.write(tempCommit);
-        tempCommit = 0;
-        i++;
-      }
+      Serial.write(incoming);
+      commits[i] = incoming;
+      i++;
     }
 
     if (i > 55) {
@@ -94,8 +84,7 @@ void loop() {
   }
   
   if (hasNewData) {
+    Serial.write("Has New Data");
     showHistory();
   }
-
-//  delay(2000);
 }

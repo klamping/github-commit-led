@@ -2,7 +2,7 @@ var https = require('https');
 var fs = require('fs');
 
 var SerialPort = require("serialport").SerialPort
-var serialPort = new SerialPort("/dev/ttyACM0", {
+var serialPort = new SerialPort("/dev/ttyACM1", {
   baudrate: 9600
 });
 
@@ -10,6 +10,17 @@ var options = {
     host: 'github.com',
     path: '/users/klamping/contributions_calendar_data'
 }
+
+var numCommits = [];
+
+function writeData() {
+    var num = numCommits.shift();
+    if (!isNaN(num)) {
+//        console.log('writing num: ', num);
+        serialPort.write(num, writeData);
+    }
+}
+
 var request = https.request(options, function (res) {
     var data = '';
     res.on('data', function (chunk) {
@@ -23,34 +34,35 @@ var request = https.request(options, function (res) {
         history.reverse();
 
         // get only number of commits per day
-        var numCommits = history.map(function (dayInfo) {
+        numCommits = history.map(function (dayInfo) {
           return dayInfo[1];
         })
 
         numCommits = numCommits.slice(0,56);
+//        numCommits = numCommits.slice(0,5);
 
         // write commit data to file for later consumption
-        fs.writeFile("./commitData", numCommits.join(','), function(err) {
+/*        fs.writeFile("./commitData", numCommits.join(','), function(err) {
             if(err) {
                 console.log(err);
             } else {
                 console.log("The file was saved!");
             }
-        });
+        });*/
 
         serialPort.open(function () {
           console.log('open');
-     var counter = 0;     
-  serialPort.on('data', function(data) {
-    console.log(counter, 'data received: ' + data);
-counter++;
-  }); 
-          console.log('commits ', numCommits.join(','));
-          serialPort.write(numCommits.join(','), function(err, results) {
-            console.log('err ' + err);
-            console.log('results ' + results);
-//            process.exit();
+          
+          serialPort.on('data', function(data) {
+            console.log('data received: ' + data);
           });
+ 
+          writeData(numCommits);
+//          console.log('commits ', numCommits.join(','));
+          //for (var i = 0; i < numCommits.length; i++) {
+            
+        //    serialPort.write(numCommits[i], function(err, results) { });          
+          //}
         });
     });
 });
