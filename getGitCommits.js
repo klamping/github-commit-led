@@ -26,7 +26,7 @@ var request = https.request(options, function (res) {
         numCommits = numCommits.slice(0,56);
 
         // write commit data to file for later consumption
-        fs.writeFile("./commitData", numCommits.join(','), function(err) {
+        fs.writeFile("./commitData", numCommits.join(',') + ',', function(err) {
             if(err) {
                 console.log(err);
             } else {
