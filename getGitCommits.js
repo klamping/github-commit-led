@@ -27,20 +27,29 @@ var request = https.request(options, function (res) {
           return dayInfo[1];
         })
 
-        // write commit data to file for later consumption
-        // fs.writeFile("./commitData", numCommits.join(','), function(err) {
-        //     if(err) {
-        //         console.log(err);
-        //     } else {
-        //         console.log("The file was saved!");
-        //     }
-        // });
+        numCommits = numCommits.slice(0,56);
 
-        serialPort.on("open", function () {
+        // write commit data to file for later consumption
+        fs.writeFile("./commitData", numCommits.join(','), function(err) {
+            if(err) {
+                console.log(err);
+            } else {
+                console.log("The file was saved!");
+            }
+        });
+
+        serialPort.open(function () {
           console.log('open');
+     var counter = 0;     
+  serialPort.on('data', function(data) {
+    console.log(counter, 'data received: ' + data);
+counter++;
+  }); 
+          console.log('commits ', numCommits.join(','));
           serialPort.write(numCommits.join(','), function(err, results) {
             console.log('err ' + err);
             console.log('results ' + results);
+//            process.exit();
           });
         });
     });
