@@ -40,6 +40,7 @@ void showHistory() {
   for(int x = 0; x < 8; x++) {
     for(int y = 0; y < 7; y++) {
       Serial.print(commits[count]);
+      Serial.print("-");
 
       if(commits[count] > 0) {
         if(commits[count] > 6) {
@@ -66,14 +67,22 @@ void showHistory() {
 }
 
 int i = 0;
-String inData;
+int tempNum = 0;
+char tempRead;
 
 void loop() {
   if (Serial.available() > 0) {
     while(Serial.available() > 0) {
       char incoming = Serial.read();
-      Serial.write(incoming);
-      commits[i] = incoming;
+      if(incoming != ',') {
+        Serial.write(incoming);
+        tempRead = incoming;
+      } else {
+        commits[i] = tempRead - '0';
+        i++;
+      }
+
+      Serial.write("-");
       i++;
     }
 
