@@ -20,8 +20,6 @@ void setup() {
   
   matrix.setBrightness(5);
   
-  matrix.setRotation(3);
-  
   matrix.clear();
 
   matrix.writeDisplay();
@@ -33,7 +31,8 @@ void showHistory() {
 
   int consecDays = 0;
  
-  int tempCommit;
+  int tempCommit = 0;
+  boolean isConsecutive = true;
  
   matrix.clear();
     
@@ -49,15 +48,34 @@ void showHistory() {
         } else {
           numCommits = 2;
         }
-        consecDays += tempCommit;
+        if (isConsecutive) {
+          consecDays++;
+        }
         
         matrix.drawPixel(x, y, colors[numCommits]);
+      } else {
+        isConsecutive = false;
       }
       
       count++;
     }
-    // TODO draw consect days
-    matrix.drawPixel(x, 7, colors[0]);
+  }
+
+  int colorConsec = 2;
+  if (consecDays > 14) {
+    colorConsec = 0;
+  } else if (consecDays > 7) {
+    colorConsec = 1;
+  }
+  int modWeek = consecDays % 7;
+
+  for (int z = 0; z < 8; z++) {
+    // TODO what if modWeek == 0? (so consecDays == 7 || 14)
+    if (modWeek > 0 && z == modWeek) {
+      colorConsec = colorConsec + 1;
+    }
+    
+    matrix.drawPixel(z, 7, colors[colorConsec]);
   }
 
   // reset data flag to false
@@ -68,10 +86,9 @@ void showHistory() {
 
 int i = 0;
 int tempCount = 0;
+char incoming;
 
 void loop() {
-  char incoming;
-
   if (Serial.available() > 0) {
     while(Serial.available() > 0) {
       incoming = Serial.read();
