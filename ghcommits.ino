@@ -37,7 +37,7 @@ void showHistory() {
   matrix.clear();
     
   for(int x = 0; x < 8; x++) {
-    for(int y = 0; y < 7; y++) {
+    for(int y = 1; y < 8; y++) {
       tempCommit = commits[count];
 
       if(tempCommit > 0) {
@@ -75,7 +75,7 @@ void showHistory() {
       colorConsec = colorConsec + 1;
     }
     
-    matrix.drawPixel(z, 7, colors[colorConsec]);
+    matrix.drawPixel(z, 0, colors[colorConsec]);
   }
 
   // reset data flag to false
